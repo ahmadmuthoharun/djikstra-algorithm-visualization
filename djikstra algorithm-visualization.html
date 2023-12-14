@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dijkstra Algorithm Visualization</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif; 
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            padding: 0px 20px 20px 20px;
+        }
+
+        #displayBox {
+            border: 1px solid #000;
+            background-color: #fff;
+            padding: 20px;
+            box-sizing: border-box;
+            width: 1100px;
+        }
+
+        #undoButton {
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .columns {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .column {
+            flex: 1;
+            padding: 10px;
+        }
+        
+        canvas {
+            border: 1px solid rgb(0, 0, 0);
+            background: #F875AA;
+            cursor: pointer;
+        }
+        
+        
+        form {
+            margin-bottom: 10px;
+        }
+
+
+        /* Gaya untuk modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 30%;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-content-small {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 20%;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-content-large {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Mengatur gaya pada input textbox */
+        input[type="number"] {
+            width: 150px; /* Lebar textbox */
+            padding: 10px; /* Padding di dalam textbox */
+            margin: 5px 0; /* Margin di luar textbox */
+            border: 1px solid #ccc; /* Garis tepi textbox */
+            border-radius: 4px; /* Sudut border */
+            box-sizing: border-box; /* Membuat ukuran total termasuk padding dan border */
+            font-size: 20px; /* Ukuran font */
+            color: #333; /* Warna teks */
+        }
+
+        /* Gaya saat input textbox mendapat fokus */
+        input[type="number"]:focus {
+            outline: none; /* Menghilangkan outline saat fokus */
+            border-color: #ff0000; /* Warna border saat fokus */
+            box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); /* Efek bayangan saat fokus */
+        }
+
+        .command-button {
+            color: rgb(255, 255, 255); /* Ganti warna teks menjadi putih untuk kontras */
+            padding: 10px 20px; /* Padding di dalam tombol */
+            border: none; /* Hilangkan border agar tombol terlihat bersih */
+            border-radius: 5px; /* Tambahkan border-radius agar tombol terlihat sedikit melengkung */
+            margin: 5px; /* Tambahkan margin agar tombol tidak terlalu rapat */
+            cursor: pointer;
+            font-family: 'Arial', sans-serif; 
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .button-hijau {
+            background-color: #04AA6D;
+        }
+
+        .button-hijau:hover {
+            background-color: #3e8e41; /* Ganti warna tombol saat dihover menjadi hijau tua */
+        }
+
+        .button-biru {
+            background-color: #3498db;
+        }
+
+        .button-biru:hover {
+            background-color: #2980b9; /* Ganti warna tombol saat dihover menjadi hijau tua */
+        }
+
+        .button-merah {
+            background-color: #e74c3c;
+        }
+
+        .button-merah:hover {
+            background-color: #c0392b; /* Ganti warna tombol saat dihover menjadi hijau tua */
+        }
+
+        .button-abu {
+            background-color: #95a5a6;
+        }
+
+        .button-abu:hover {
+            background-color: #7f8c8d; /* Ganti warna tombol saat dihover menjadi hijau tua */
+        }
+
+        form {
+            margin-bottom: 10px;
+            color: black; /* Ganti warna teks pada formulir menjadi putih */
+        }
+
+        label {
+            color: black; /* Ganti warna teks pada label menjadi putih */
+        }
+
+        button {
+            background-color: #04AA6D;
+            color: rgb(255, 255, 255); /* Ganti warna teks menjadi putih untuk kontras */
+            padding: 10px 20px; /* Padding di dalam tombol */
+            border: none; /* Hilangkan border agar tombol terlihat bersih */
+            border-radius: 5px; /* Tambahkan border-radius agar tombol terlihat sedikit melengkung */
+            margin: 5px; /* Tambahkan margin agar tombol tidak terlalu rapat */
+            cursor: pointer;
+            font-family: 'Arial', sans-serif; 
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #3e8e41; /* Ganti warna tombol saat dihover menjadi hijau tua */
+        }
+    </style>
+</head>
+<body style="background-color: #FFDFDF;">
+    <div id="container">
+        <h1>Dijkstra Algorithm Visualization</h1>
+        <div class="columns">
+            <div class="column">
+                <canvas id="canvas" width="1100" height="500"></canvas>
+
+                <div id="displayBox">
+                    <pre id="jsonOutput"></pre>
+                </div>
+            </div>
+
+            <div class="column">
+                <br>
+                <div>
+                    <label for="numberInput">Input Vertex: </label><input type="number" id="numberInput"><button  class="command-button button-hijau" onclick="generateCircles()">Generate Vertex</button>
+                    <div id="output"></div>
+                </div>
+
+                <br><br>
+                <div>                    
+                    <button  class="command-button button-hijau" onclick="addVertex()">Add Vertex</button>
+                    <button  class="command-button button-biru" onclick="setMode('move')">Move Vertex</button>                   
+                    <button  class="command-button button-hijau" onclick="setMode('edge')">Add Edge</button>
+                    <button  class="command-button button-abu" onclick="removeVertex()">Delete Vertex</button>
+                    <button  class="command-button button-merah" onclick="resetCanvas()">Reset</button>
+                </div>
+                
+                <br><br>
+                <form id="dijkstraForm">
+                    <label for="startVertex">Start: </label><input type="number" id="startVertex" name="startVertex">
+                    <br>
+                    <label for="endVertex">End: </label><input type="number" id="endVertex" name="endVertex">
+                    <div>
+                        <button  class="command-button button-biru" onclick="runDijkstra()" type="button">Run Dijkstra</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tambahkan modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+        <span class="close">&times;</span>
+        <p id="modalText"></p>
+        <input type="number" id="modalInput" style="display: none; width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 20px; color: #333;">
+        <button id="modalButton" style="display: none; margin-top: 10px;">OK</button>
+        </div>
+    </div>
+
+    <div id="myModal2" class="modal">
+        <div class="modal-content-small">
+            <div class="button-group">
+                <button id="ubahButton" class="modal-button">Ubah</button>
+                <button id="hapusButton" class="modal-button" style="background-color: red;">Hapus</button>
+            </div>
+        </div>
+    </div>
+
+  <script>
+    let inputValue = null; // Variabel untuk menyimpan nilai yang diinput
+    
+    // Fungsi untuk menampilkan modal dengan pesan tertentu
+    function showModal(message, input = false) {
+      const modal = document.getElementById('myModal');
+      const modalText = document.getElementById('modalText');
+      const modalInput = document.getElementById('modalInput');
+      const modalButton = document.getElementById('modalButton');
+  
+      modalText.textContent = message;
+      if (input) {
+        modalInput.style.display = 'block';
+        modalButton.style.display = 'block';
+      } else {
+        modalInput.style.display = 'none';
+        modalButton.style.display = 'none';
+      }
+  
+      modal.style.display = 'block';
+  
+      // Aksi saat tombol OK pada modal ditekan
+      modalButton.onclick = function() {
+        const newValue = modalInput.value;
+        if (newValue.trim() !== '') {
+          inputValue = newValue; // Menyimpan nilai yang diinput
+          modal.style.display = 'none';
+        } else {
+          showModal('Please insert a valid value.');
+        }
+      }
+  
+      // Aksi saat tombol close pada modal ditekan
+      const spanClose = document.getElementsByClassName('close')[0];
+      spanClose.onclick = function() {
+        modal.style.display = 'none';
+      }
+  
+      // Aksi saat pengguna mengklik area di luar modal (untuk menutup modal)
+      window.onclick = function(event) {
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      }
+    }
+
+    function showModal2(message, input = false) {
+        const modal = document.getElementById('myModal2');
+
+    
+        modal.style.display = 'block';
+    
+    
+        // Aksi saat tombol close pada modal ditekan
+        const spanClose = document.getElementsByClassName('close')[0];
+        spanClose.onclick = function() {
+          modal.style.display = 'none';
+        }
+    
+        // Aksi saat pengguna mengklik area di luar modal (untuk menutup modal)
+        window.onclick = function(event) {
+          if (event.target === modal) {
+            modal.style.display = 'none';
+          }
+        }
+      }
+  
+    // Fungsi untuk menampilkan dialog input dan mengembalikan nilai yang diinput
+    function showInputDialog1(message, clickedEdgeIndex) {
+        
+        showInputDialog2('Insert new value for edge:', clickedEdgeIndex);
+    
+        
+    }
+    
+
+    // Fungsi untuk menampilkan dialog input dan mengembalikan nilai yang diinput
+    function showInputDialog2(message,clickedEdgeIndex) {
+        document.getElementById('modalInput').value = null;
+        showModal(message, true);
+        const modalButton = document.getElementById('modalButton');
+        modalButton.textContent = 'OK';
+        modalButton.style.display = 'block';
+        // Mengembalikan nilai yang diinput ketika modal ditutup
+        return new Promise((resolve, reject) => {
+          modalButton.onclick = function() {
+            if (document.getElementById('modalInput').value !== null) {
+                const newValue = document.getElementById('modalInput').value;
+                if (newValue !== null && newValue.trim() !== '') {
+                    vertices[clickedEdgeIndex.from].edgeValues[clickedEdgeIndex.to] = parseInt(newValue);
+                    draw();
+                    document.getElementById('myModal').style.display = 'none';
+                }
+            } else {
+            }
+          }
+        });
+      }
+
+      // Fungsi untuk menampilkan dialog input dan mengembalikan nilai yang diinput
+    function showInputDialog3(message,edgeStart,endVertex) {
+        document.getElementById('modalInput').value = null;
+        showModal(message, true);
+        const modalButton = document.getElementById('modalButton');
+        modalButton.textContent = 'OK';
+        modalButton.style.display = 'block';
+        // Mengembalikan nilai yang diinput ketika modal ditutup
+        return new Promise((resolve, reject) => {
+          modalButton.onclick = function() {
+            if (document.getElementById('modalInput').value !== null) {
+                const value = document.getElementById('modalInput').value;
+                if (value !== null && value.trim() !== '') {
+                    vertices[edgeStart].edges.push(endVertex);
+                    vertices[edgeStart].edgeValues.push(parseInt(value));
+                    draw();
+                    document.getElementById('myModal').style.display = 'none';
+                }
+            } else {
+              reject('Nilai Invalid.');
+            }
+          }
+        });
+      }
+  
+    // Di dalam kode Anda, gunakan fungsi showInputDialog untuk menampilkan modal dialog input
+    // dan gunakan nilai yang dikembalikan (dengan menggunakan Promise) untuk melakukan sesuatu
+    // dengan nilai yang diinput, seperti mengubah nilai edge atau melakukan tindakan lainnya.
+  </script>
+  
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let vertexCount = 3;
+        let vertices = [];
+        let mode = 'move';
+        let dragging = false;
+        let selectedVertex = null;
+        let edgeStart = null;
+        let deleteEdgeTimeout = null;
+
+
+        function resetCanvas() {
+            vertices = []; // Menghapus semua vertices
+            draw(); // Menggambar kembali canvas yang kosong
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawVertex(x, y, label) {
+            ctx.beginPath();
+            ctx.arc(x, y, 18, 0, Math.PI * 4); // Ubah ukuran vertex menjadi 12
+            ctx.fillStyle = 'yellow';
+            ctx.fill();
+            ctx.closePath();
+            ctx.font = 'bold 20px Arial'; // Tambahkan "bold" untuk label vertex
+            ctx.fillStyle = 'black';
+            ctx.fillText(label, x - 6, y + 5); // Beri padding untuk label
+        }
+
+        function drawEdge(startX, startY, endX, endY, value) {
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.strokeStyle = 'white';
+            ctx.stroke();
+            if (value !== undefined) {
+                ctx.font = '20px Arial';
+                ctx.fillStyle = 'white';
+                ctx.fillText(value, (startX + endX) / 2, (startY + endY) / 2);
+            }
+            ctx.closePath();
+            
+        }
+
+        function draw() {
+            clearCanvas();
+            for (let i = 0; i < vertices.length; i++) {
+                for (let j = 0; j < vertices[i].edges.length; j++) {
+                    const endVertex = vertices[vertices[i].edges[j]];
+                    drawEdge(
+                        vertices[i].x,
+                        vertices[i].y,
+                        endVertex.x,
+                        endVertex.y,
+                        vertices[i].edgeValues[j]
+                    );
+                }
+            }
+
+            for (let i = 0; i < vertices.length; i++) {
+                const label = drawNextVertexLabel(i+1);
+                drawVertex(vertices[i].x, vertices[i].y, label);
+            }
+
+            if (edgeStart !== null && mode === 'edge') {
+                const {
+                    x,
+                    y
+                } = getCursorPosition(event);
+                drawEdge(vertices[edgeStart].x, vertices[edgeStart].y, x, y);
+            }
+        }
+
+
+        function getRandomPosition() {
+            const x = Math.floor(Math.random() * (canvas.width - 20)) + 10;
+            const y = Math.floor(Math.random() * (canvas.height - 20)) + 10;
+            return {
+                x,
+                y
+            };
+        }
+
+        function addVertex() {
+            const {
+                x,
+                y
+            } = getRandomPosition();
+            vertices.push({
+                x,
+                y,
+                edges: [],
+                edgeValues: []
+            });
+            draw();
+        }
+
+        function generateCircles() {
+            const numberInput = document.getElementById('numberInput');
+            const outputDiv = document.getElementById('output');
+
+            // Mengambil nilai dari input
+            const inputValue = parseInt(numberInput.value);
+
+            // Memastikan nilai input adalah angka yang valid
+            if (!isNaN(inputValue) && inputValue > 0) {
+                // Menghapus konten sebelumnya
+                outputDiv.innerHTML = '';
+                vertices = []; // Menghapus semua vertices
+                draw(); // Menggambar kembali canvas yang kosong
+
+                // Membuat lingkaran sesuai dengan input
+                for (let i = 1; i <= inputValue; i++) {
+                const {x,y} = getRandomPosition();
+                vertices.push({x,y,edges: [], edgeValues: [] });
+                draw();
+                }
+            } else {
+                alert('Masukkan angka yang valid dan lebih besar dari 0!');
+            }
+        }
+
+        function getCursorPosition(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            return {
+                x,
+                y
+            };
+        }
+
+        function checkClickedVertex(cursorX, cursorY) {
+            for (let i = 0; i < vertices.length; i++) {
+                const distance = Math.sqrt((cursorX - vertices[i].x) ** 2 + (cursorY - vertices[i].y) ** 2);
+                if (distance <= 8) {
+                    return i;
+                }
+            }
+            return null;
+        }
+
+        canvas.addEventListener('mousedown', function(event) {
+            const {
+                x,
+                y
+            } = getCursorPosition(event);
+            selectedVertex = checkClickedVertex(x, y);
+            if (selectedVertex !== null && mode === 'move') {
+                dragging = true;
+            } else if (mode === 'edge') {
+                edgeStart = checkClickedVertex(x, y);
+            } else {
+                // Jika mode bukan 'move' atau 'edge', maka cek apakah klik dilakukan di atas edge
+                const clickedEdgeIndex = checkClickedEdge(x, y);
+                if (clickedEdgeIndex !== null) {
+                    showInputDialog1('Pilih:',clickedEdgeIndex);
+                    
+                }
+            }
+        });
+
+        canvas.addEventListener('mousemove', function(event) {
+            if (dragging && selectedVertex !== null && mode === 'move') {
+                const {
+                    x,
+                    y
+                } = getCursorPosition(event);
+                vertices[selectedVertex].x = x;
+                vertices[selectedVertex].y = y;
+                draw();
+            } else if (edgeStart !== null && mode === 'edge') {
+                draw();
+            }
+        });
+
+        canvas.addEventListener('mouseup', function(event) {
+            if (dragging && selectedVertex !== null && mode === 'move') {
+                dragging = false;
+                selectedVertex = null;
+            } else if (edgeStart !== null && mode === 'edge') {
+                const {
+                    x,
+                    y
+                } = getCursorPosition(event);
+                const endVertex = checkClickedVertex(x, y);
+
+                // Mencegah menghubungkan indeks yang lebih tinggi ke indeks yang lebih rendah
+                if (endVertex !== null && edgeStart !== endVertex && endVertex > edgeStart) {
+                    showInputDialog3('Insert Edge Value:',edgeStart,endVertex);
+                    
+                }
+                edgeStart = null;
+            }
+        });
+
+
+        function checkClickedEdge(cursorX, cursorY) {
+            for (let i = 0; i < vertices.length; i++) {
+                for (let j = 0; j < vertices[i].edges.length; j++) {
+                    const startX = vertices[i].x;
+                    const startY = vertices[i].y;
+                    const endVertex = vertices[vertices[i].edges[j]];
+                    const endX = endVertex.x;
+                    const endY = endVertex.y;
+
+                    // Calculate distance from point to line (edge)
+                    const distance = Math.abs((endY - startY) * cursorX - (endX - startX) * cursorY + endX * startY - endY *
+                            startX) /
+                        Math.sqrt((endY - startY) ** 2 + (endX - startX) ** 2);
+
+                    // If the distance is within a threshold (e.g., 5 pixels), consider it a click on the edge
+                    if (distance <= 5) {
+                        return {
+                            from: i,
+                            to: j
+                        }; // Return the indices of the edge clicked
+                    }
+                }
+            }
+            return null;
+        }
+
+        function getRandomEdges(vertexCount, currentIndex) {
+            const edges = [];
+            const edgeValues = [];
+            const connected = {}; // Menyimpan vertex yang sudah terhubung
+
+            for (let i = currentIndex + 1; i < vertexCount; i++) {
+                edges.push(i);
+                edgeValues.push(Math.floor(Math.random() * 10) + 1); // Nilai edge acak dari 1 hingga 10
+                connected[i] = true;
+                connected[currentIndex] = true; // Tandai kedua vertex terhubung
+            }
+            return {
+                edges,
+                edgeValues
+            };
+        }
+
+
+
+        function setMode(selectedMode) {
+            mode = selectedMode;
+            edgeStart = null;
+        }
+
+        function getNextLabel(index) {
+            return index.toString();
+        }
+
+        function drawNextVertexLabel(index) {
+            const label = getNextLabel(index);
+            return label;
+        }
+
+        function removeVertex() {
+            if (vertices.length === 0) {
+                return;
+            }
+
+            vertices.pop();
+            for (let i = 0; i < vertices.length; i++) {
+                for (let j = vertices[i].edges.length - 1; j >= 0; j--) {
+                    if (vertices[i].edges[j] >= vertices.length) {
+                        vertices[i].edges.splice(j, 1);
+                        vertices[i].edgeValues.splice(j, 1);
+                    }
+                }
+            }
+            draw();
+        }
+
+
+        function runDijkstra() {
+            const INF = Number.MAX_SAFE_INTEGER;
+            const distance = [];
+            const visited = [];
+            const parent = [];
+            let allPaths = [];
+            let dijkstraSteps = [];
+
+
+            const ver_edge = getDataFromCanvas();
+            const nodes = ver_edge.nodes;
+            const edges = ver_edge.edges;
+
+            if (nodes.length === 0 || edges.length === 0) {
+                return;
+            }
+
+            for (let i = 0; i < nodes.length; i++) {
+                distance[i] = INF;
+                visited[i] = false;
+                parent[i] = -1;
+            }
+
+            let Awal = parseInt(document.getElementById('startVertex').value);
+            let Akhir = parseInt(document.getElementById('endVertex').value);
+            const startNode = Awal - 1;
+            const endNode = Akhir - 1;
+            console.log(startNode)
+
+
+            if (endNode >= nodes.length || startNode < 0) {
+                showModal('Vertex Awal tidak boleh kurang dari 0 atau Vertex Akhir tidak boleh lebih dari atau sama dengan jumlah Vertex.');
+                return;
+            }
+
+            distance[startNode] = 0;
+
+            // Menampilkan hasil jalur dan total edge value dalam elemen HTML
+            for (let count = 0; count < nodes.length - 1; count++) {
+                let u = -1;
+                for (let i = 0; i < nodes.length; i++) {
+                    if (!visited[i] && (u === -1 || distance[i] < distance[u])) {
+                        u = i;
+                    }
+                }
+
+                visited[u] = true;
+
+                for (let v = 0; v < nodes.length; v++) {
+                    if (!visited[v] && edges.some(edge => (edge.source === u && edge.target === v) || (edge.source === v && edge.target === u))) {
+                        const edgeIndex = edges.findIndex(edge => (edge.source === u && edge.target === v) || (edge.source === v && edge.target === u));
+                        const weight = edges[edgeIndex].weight;
+                        if (distance[u] !== INF && distance[u] + weight < distance[v]) {
+                            distance[v] = distance[u] + weight;
+                            parent[v] = u;
+                        }
+                    }
+                }
+            }
+
+            // Menyorot jalur terpendek pada tampilan graf
+            draw();
+            let path = [];
+            let totalEdgeValue = 0;
+            for (let j = endNode; j !== -1; j = parent[j]) {
+                path.push(j);
+            }
+            path.reverse();
+
+            // Highlight the shortest path by changing the color of the lines on that path
+            ctx.strokeStyle = 'blue';
+            ctx.lineWidth = 3;
+            for (let k = 0; k < path.length - 1; k++) {
+                const node1 = path[k];
+                const node2 = path[k + 1];
+                const edge = edges.find(e =>
+                    (e.source === node1 && e.target === node2) || (e.source === node2 && e.target === node1)
+                );
+                const weight = edge ? edge.weight : ''; // Get weight from edge object
+                totalEdgeValue += weight;
+                ctx.beginPath();
+                ctx.moveTo(nodes[node1].x, nodes[node1].y);
+                ctx.lineTo(nodes[node2].x, nodes[node2].y);
+                ctx.stroke();
+                ctx.font = '20px Arial';
+                ctx.fillStyle = 'black';
+                ctx.fillText(weight, (nodes[node1].x + nodes[node2].x) / 2, (nodes[node1].y + nodes[node2].y) / 2);
+            }
+            document.getElementById('jsonOutput').textContent = `Total Edge Value Jalur Terpendek = ${totalEdgeValue}`;
+
+        }
+        function getDataFromCanvas() {
+            const nodes = [];
+            const edges = [];
+
+            // Mengambil data posisi vertex dari vertices
+            for (let i = 0; i < vertices.length; i++) {
+                const node = {
+                    id: i,
+                    x: vertices[i].x,
+                    y: vertices[i].y,
+                    edges: []
+                };
+                nodes.push(node);
+
+                // Mengambil data hubungan antar vertex dan bobot edge-nya dari edges
+                for (let j = 0; j < vertices[i].edges.length; j++) {
+                    const edge = {
+                        source: i, // nodeIndex1
+                        target: vertices[i].edges[j], // nodeIndex2
+                        weight: vertices[i].edgeValues[j] // weight
+                    };
+                    node.edges.push(edge);
+                    edges.push(edge);
+                }
+            }
+
+
+            // Output hasil ekstraksi data dari canvas
+            console.log("Nodes:");
+            console.log(nodes);
+            console.log("Edges:");
+            console.log(edges);
+
+            const data = JSON.stringify({
+                nodes,
+                edges
+            }); // Mendapatkan data dari canvas dalam bentuk string JSON
+            // Menggunakan pywebview API untuk mengirim data ke Python
+
+            // Jika Anda ingin mengembalikan data untuk digunakan di tempat lain, dapat menggunakan return
+            return {
+                nodes,
+                edges
+            };
+        }
+
+        // Panggil fungsi getDataFromCanvas untuk mendapatkan data dari canvas
+
+        draw();
+    </script>
+
+</body>
+
+</html>
