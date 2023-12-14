@@ -1,1 +1,1 @@
-# ahmadmuthoharun-djikstra-algorithm-visualization
+# djikstra-algorithm-visualization
